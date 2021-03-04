@@ -4,13 +4,26 @@ generator
 
 WIP repo
 
+### Compilation and Loading
+
 I used the Arduino IDE to upload this to an ATTINY85 using ISP and
-Spence Konde's Attinycore.
+Spence Konde's Attinycore, using these settings:
+
+Board: "ATtiny25/45/85 (No Bootloader)"
+Chip: "Attiny85"
+Clock: "8MHz (internal)"
+B.O.D.: "B.O.D. disabled"
+Timer 1 Clock: "CPU"
+millis()/micros(): "disabled"
 
 The compiled binary is 1360B, allowing usage on any AVR down to
-an ATTINY25 (sorry ATTINY13 users). However, to get this optimization,
-many register fiddling tricks were necessary. As such, this code will
-not directly port to a PIC or other microcontroller.
+an ATTINY25. An ATTINY13 could probably be used if the audio frequency
+generator was given up, and the tone generation hardcoded.However, to
+attain this level of optimization, many register fiddling tricks were
+necessary. As such, this code will not directly port to a PIC or other
+microcontroller, even through the Arduino layer.
+
+### Important assembly and programming notes:
 
 schematic coming soon
 
@@ -19,8 +32,6 @@ from China for cheap from many retailers, including Amazon.
 
 ![Front of PCB](assets/front.jpg)
 ![Back of PCB, mirrored](assets/back.jpg)
-
-### Important assembly and programming notes:
 
 - The 4-button keypad works as a discrete R2R DAC.
 To decrease the current flowing through the bias resistors, they are
