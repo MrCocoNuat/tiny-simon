@@ -18,7 +18,7 @@ millis()/micros(): "disabled"
 
 The compiled binary is 1360B, allowing usage on any AVR down to
 an ATTINY25. An ATTINY13 could probably be used if the audio frequency
-generator was given up, and the tone generation hardcoded.However, to
+generator was given up, and the tone generation hardcoded. However, to
 attain this level of optimization, many register fiddling tricks were
 necessary. As such, this code will not directly port to a PIC or other
 microcontroller, even through the Arduino layer.
