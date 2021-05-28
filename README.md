@@ -2,9 +2,20 @@
 Enhanced Simon Says: difficulty levels and built-in audio frequency
 generator
 
-WIP repo
+This repo is designed to help people learn how to design something 
+like this, both hardware and software. I hope that this can help others
+with understanding basic circuit and code ideas that can be put together 
+to make great things.
 
-### Compilation and Loading
+In the ![design notes document](/design.md), you can learn about:
+- Registers controlling the clock, ADC, digital IO, and timers
+- Psuedorandom number generators based on LFSRs
+- Timer output compare outputs, and the capabilities of Timer1 in general
+- Multiplexing and Charlieplexing
+- R2R Digital-to-Analog converters
+- This project's schematic
+
+# Compilation and Loading:
 
 I used the Arduino IDE to upload this to an ATTINY85 using ISP and
 Spence Konde's Attinycore, using these settings:
@@ -16,16 +27,12 @@ B.O.D.: "B.O.D. disabled"
 Timer 1 Clock: "CPU"
 millis()/micros(): "disabled"
 
-The compiled binary is 1360B, allowing usage on any AVR down to
-an ATTINY25. An ATTINY13 could probably be used if the audio frequency
-generator was given up, and the tone generation hardcoded. However, to
-attain this level of optimization, many register fiddling tricks were
-necessary. As such, this code will not directly port to a PIC or other
-microcontroller, even through the Arduino layer.
+The compiled binary is 1360B, allowing usage on even the ATTINY25. Since the 
+code makes use of Timer1, which is pretty much unique to the 'X5 family, 
+it will only work on those. You should probably just use an '85, since it is 
+barely more expensive than a '25 or '45 and with much more flash/RAM.
 
-### Important assembly and programming notes:
-
-schematic coming soon
+# Assembly and programming notes:
 
 This project can be built on a 10x24 PTH protoboard, available straight
 from China for cheap from many retailers, including Amazon.
@@ -33,28 +40,12 @@ from China for cheap from many retailers, including Amazon.
 ![Front of PCB](assets/front.jpg)
 ![Back of PCB, mirrored](assets/back.jpg)
 
-- The 4-button keypad works as a discrete R2R DAC.
-To decrease the current flowing through the bias resistors, they are
-all in the 100kOhm range, meaning that the resistance across your skin
-will completely mess up the readings/buttons if you touch the analog traces.
-This is why the picture shows the back completely covered by kapton tape.
-Putting the entire board inside an enclosure is also a good idea.
-
 - The OSCCAL register must be programmed PER-CHIP if a high accuracy 
 frequency generator is needed. An easy way is to compare the tone generated
 to a known accurate audio source, like a PC or smartphone, or maybe you
 have a laboratory frequency generator. Lucky you.
 
-- The resistor in series with the piezo buzzer controls its loudness.
-Don't set the resistance too low, or the uC will be damaged. There is
-no amplifier to boost the signal coming from the uC pin.
-
-### Usage notes:
-
-- Power the board from 3-6V. Any lower, and the lower wavelength LEDs
-will not light up. Any higher and the uC might be damaged. A 1S Li-Ion
-cell is perfect, which is why my board included a JST PH 2pin connector
-to connect it. Mind the polarity!
+# Usage notes:
 
 - When you turn on the circuit (via the switch or other means) nothing
 will happen. The uC is waiting for you to press a button before it will
