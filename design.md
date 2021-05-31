@@ -124,7 +124,7 @@ of notes because of its prescaler that supports divisors of 2 all the way to 163
   frequencies would be better represented by decrementing the prescaler exponent, and doubling
   the timer frequency anyway.
  
- - The actual code of playNote():
+- The actual code of playNote():
  
   - The noteNumber is divided by 12 to find which prescaler should be used to create the correct
   frequency, remembering that a prescaler exponent of 1 is fastest and of 15 is slowest. A value of
@@ -136,7 +136,7 @@ of notes because of its prescaler that supports divisors of 2 all the way to 163
   - And finally, TCCR1, the Timer Control Register 1, is set to enable in CTC mode and active the 
   PWM output on OC1A or pin1, as well as setting the prescaler exponent correctly.
   
- - Finally, there is randomLite(). It uses a Linear Feedback Shift Register.
+- Finally, there is randomLite(). It uses a Linear Feedback Shift Register.
 
   - A shift register is a series of cascaded d-type flip flops. When the clock is strobed, each 
   flip flop passes its output to the next one. The first flip flop will take its input from the 
@@ -156,11 +156,11 @@ of notes because of its prescaler that supports divisors of 2 all the way to 163
 
 ![Schematic](assets/schema.png)
 
-### The Microcontroller
+### The microcontroller
 
-- Just remember to include a reset button
+- Just remember to include a reset button. Remember that OC1 can only be on pins 1 or 4!
 
-### The Buzzer output
+### The buzzer output
 
 - The resistor in series with the piezo buzzer controls its loudness.
 Don't set the resistance too low, or the uC will be damaged. There is
@@ -217,7 +217,8 @@ Putting the entire board inside an enclosure is also a good idea.
 - Power the board from 3-6V. Any lower, and the lower wavelength LEDs
 will not light up. Any higher and the uC might be damaged. A 1S Li-Ion
 cell is perfect, which is why my board included a JST PH 2pin connector
-to connect it. Mind the polarity!
+to connect it. Mind the polarity! JST PH connectors don't have standardized
+polarity!
 
 - The switch is included because otherwise the microcontroller by itself 
 will draw about 5mA. This could be reduced by forcing it into sleep modes.
