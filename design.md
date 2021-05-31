@@ -174,7 +174,7 @@ cost of some speed.
 ### The LED output
 
 - Powering arbitrary combinations of many LEDS with few pins requires some 
-clever wiring; one pin to each LED will not work!
+clever wiring; one pin to each LED will require far too many pins!
 - One way to do this is multiplexing, to have the LEDs in a grid, with columns of anodes
 and rows of cathodes. If the anode pins are sent high one by one (all the others 
 staying low), during the time each column is high the correct cathode pins can 
