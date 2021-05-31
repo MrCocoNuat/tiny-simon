@@ -2,11 +2,11 @@
 
 int main() {
   OSCCAL -= 2; //PER-CHIP ADJUSTMENT!!
-  DDRB = 0b00000010; //pin1 buzzer out, pin2 button DAC in, pin0 3 4 charlieplexed LEDS, pin0 common
-  ADMUX = 0b00100001; //set Vref to Vcc, left adjust result (for 8 bit operation), and input to pin2/pinA1
-  ADCSRA = 0b10000011; //enable ADC, set prescaler to 8 (1MHz ADC is OK for low precision)
-  DIDR0 = 0b00011111; //disable digital input buffer on all pins, never needed
-  PRR = 0b00000010; //disable USI for power saving
+  DDRB = (1 << DDB1); //pin1 buzzer out, pin2 button DAC in, pin0 3 4 charlieplexed LEDS, pin0 common
+  ADMUX = (1 << ADLAR) | (1 << MUX0); //set Vref to Vcc, left adjust result (for 8 bit operation), and input to pin2/pinA1
+  ADCSRA = (1 << ADEN) | (1 << ADPS1) | (1 << ADPS0); //enable ADC, set prescaler to 8 (1MHz ADC is OK for low precision)
+  DIDR0 = (1 << ADC0D) | (1 << ADC2D) | (1 << ADC3D) | (1 << ADC1D) | (1 << AIN1D) |(1 << AIN0D); //disable digital input buffer on all pins, never needed
+  PRR = (1 << PRUSI); //disable USI for power saving
 
   for (;;) {
     int8_t game = buttonInput(false); //blocking until input, and a lot of randomness
@@ -26,8 +26,8 @@ int8_t buttonInput(bool wantNone) { //BLOCKING for input. Parameter defines whet
   uint8_t stability = 0;
 
   while (stability < 100) {
-    ADCSRA |= (0b01000000); //start conversion
-    while (ADCSRA & (0b01000000)); //while ADC is working, block
+    ADCSRA |= (1 << ADSC); //start conversion
+    while (ADCSRA & (1 << ADSC)); //while ADC is working, block
 
     uint8_t reading = ADCH >> 3; //read upper 5 bits for some tolerance, but not too much or in-between buttons start to count
     newInput = -(reading) - 1; //if no button was pressed, newInput is -1. Any combination of buttons makes a lower negative
@@ -60,18 +60,18 @@ int8_t buttonInput(bool wantNone) { //BLOCKING for input. Parameter defines whet
 
 void ledOutput(int8_t out) { //nonblocking function, simple PORT mapping
   if (out >= 2) { //out is 2 or 3
-    DDRB = DDRB & (0b11110111) | (0b00010001);
-    if (out - 2) PORTB = PORTB & (0b11110110) | (0b00010000);
-    else PORTB = PORTB & (0b11100111) | (0b00000001);
+    DDRB = DDRB & ~(1 << DDB3) | (1 << DDB4) | (1 << DDB0);
+    if (out - 2) PORTB = PORTB & ~(1 << PORTB3) & ~(1 << PORTB0) | (1 << PORTB4);
+    else PORTB = PORTB & ~(1 << PORTB4) & ~(1 << PORTB3) | (1 << PORTB0);
   }
   else if (out >= 0) { //out is 0 or 1
-    DDRB = DDRB & (0b11101111) | (0b00001001);
-    if (out) PORTB = PORTB & (0b11100111) | (0b00000001);
-    else PORTB = PORTB & (0b11101110) | (0b00001000);
+    DDRB = DDRB & ~(1 << DDB4) | (1 << DDB3) | (1 << DDB0);
+    if (out) PORTB = PORTB & ~(1 << PORTB4) & ~(1 << PORTB3) | (1 << PORTB0);
+    else PORTB = PORTB & ~(1 << PORTB4) & ~(1 << PORTB0)  | (1 << PORTB3);
   }
   else { //out must be -1
-    DDRB &= (0b11100110);
-    PORTB &= (0b11100110);
+    DDRB &= ~((1 << DDB4) | (1 << DDB3) | (1 << DDB0));
+    PORTB &= ~((1 << PORTB4) | (1 << PORTB3) | (1 << PORTB0));
   }
 }
 //OPTIMAL
@@ -81,9 +81,9 @@ void playNote (int8_t noteNumber) { //Thanks, Technoblogy!! //0 is C2, 12 is C3,
 
   uint8_t prescaler = 0;
   if (noteNumber + 1) prescaler = 9 - noteNumber / 12; //set correct octave
-  DDRB = (DDRB & 0b11111101) | (prescaler != 0) << 1;
+  DDRB = DDRB & ~(1 << DDB1) | (prescaler != 0) << 1;
   OCR1C = pgm_read_byte_near(scale + (noteNumber % 12)); //set OCR to correct divisor from progmem list
-  TCCR1 = 0b10010000 | prescaler; //enable timer in CTC mode and OC1A pwm output, set prescaler
+  TCCR1 = (1 << CTC1) | (1 << COM1A0) | prescaler; //enable timer in CTC mode and OC1A pwm output, set prescaler
 }
 //OPTIMAL
 
@@ -92,7 +92,7 @@ void playNote (int8_t noteNumber) { //Thanks, Technoblogy!! //0 is C2, 12 is C3,
 uint8_t randomLite(uint8_t lo, uint8_t hi) { //Returns a random int in [lo,hi). Don't reverse the args! LFSR with period 127
   static uint8_t r = 1; //randomness comes from the many-calls, not the function itself!
 
-  r |= (!(r & 0b00000001) ^ !(r & 0b00000010) ^ !(r & 0b00000100) ^ !(r & 0b00100000)) << 7; //the linear feedback
+  r |= (!(r & (1 << 0)) ^ !(r & (1 << 1)) ^ !(r & (1 << 2)) ^ !(r & (1 << 5))) << 7; //the linear feedback
   r >>= 1; //the shift
 
   return r % (hi - lo) + lo;
@@ -183,7 +183,6 @@ void freq() { //crappy audio frequency generator. For tuning? Requires OSCCAL fo
   delay(250);
 
   uint8_t noteNumber = 24;
-  //uint8_t oldNoteNumber = 24;
 
   while (true) {
     playNote(noteNumber & 0b01111111); //update the tone
@@ -191,7 +190,7 @@ void freq() { //crappy audio frequency generator. For tuning? Requires OSCCAL fo
     ledOutput(-1);
     buttonInput(true); //wait for no input
 
-    noteNumber |= 0b10000000; //highest bit detects a change from the buttons
+    noteNumber |= 0b10000000; //highest bit is flag to detect a change of notenumber from the buttons
 
     int8_t command = buttonInput(false); //blocks until input
 
@@ -201,7 +200,6 @@ void freq() { //crappy audio frequency generator. For tuning? Requires OSCCAL fo
     if (command == 3 && noteNumber < 189) noteNumber -= 116; //octave up
 
     if (!(noteNumber & 0b10000000)) ledOutput(command); //should only light up if the input changed something
-    //oldNoteNumber = noteNumber;
   }
 }
 //NOT OPTIMAL
