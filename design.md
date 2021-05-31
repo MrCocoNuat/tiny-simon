@@ -154,7 +154,7 @@ of notes because of its prescaler that supports divisors of 2 all the way to 163
 
 ## The Hardware
 
-![Schematic](assets/schema.jpg)
+![Schematic](assets/schema.png)
 
 ### The Microcontroller
 
