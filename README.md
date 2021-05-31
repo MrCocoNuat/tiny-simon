@@ -7,11 +7,11 @@ like this, both hardware and software. I hope that this can help others
 with understanding basic circuit and code ideas that can be put together 
 to make great things.
 
-In the ![design notes document](/design.md), you can learn about:
+In the ![design notes document](/design.md), you can learn much more about:
 - Registers controlling the clock, ADC, digital IO, and timers
 - Psuedorandom number generators based on LFSRs
 - Timer output compare outputs, and the capabilities of Timer1 in general
-- Multiplexing and Charlieplexing
+- Multiplexing and Charlieplexing LEDs
 - R2R Digital-to-Analog converters
 - This project's schematic
 
@@ -20,12 +20,12 @@ In the ![design notes document](/design.md), you can learn about:
 I used the Arduino IDE to upload this to an ATTINY85 using ISP and
 Spence Konde's Attinycore, using these settings:
 
-Board: "ATtiny25/45/85 (No Bootloader)"
-Chip: "Attiny85"
-Clock: "8MHz (internal)"
-B.O.D.: "B.O.D. disabled"
-Timer 1 Clock: "CPU"
-millis()/micros(): "disabled"
+- Board: "ATtiny25/45/85 (No Bootloader)"
+- Chip: "Attiny85"
+- Clock: "8MHz (internal)"
+- B.O.D.: "B.O.D. disabled"
+- Timer 1 Clock: "CPU"
+- millis()/micros(): "disabled"
 
 The compiled binary is 1360B, allowing usage on even the ATTINY25. Since the 
 code makes use of Timer1, which is pretty much unique to the 'X5 family, 
