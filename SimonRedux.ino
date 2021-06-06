@@ -15,7 +15,6 @@ int main() {
     else simon(game); //simon says (normal, hard, impossible)
   }
 }
-//OPTIMAL
 
 // ----------     INTERFACE METHODS     ---------- //
 
@@ -56,7 +55,6 @@ int8_t buttonInput(bool wantNone) { //BLOCKING for input. Parameter defines whet
 
   return polledInput;
 }
-//NOT OPTIMAL
 
 void ledOutput(int8_t out) { //nonblocking function, simple PORT mapping
   if (out >= 2) { //out is 2 or 3
@@ -74,7 +72,6 @@ void ledOutput(int8_t out) { //nonblocking function, simple PORT mapping
     PORTB &= ~((1 << PORTB4) | (1 << PORTB3) | (1 << PORTB0));
   }
 }
-//OPTIMAL
 
 void playNote (int8_t noteNumber) { //Thanks, Technoblogy!! //0 is C2, 12 is C3, ... 72 is C8
   const static uint8_t scale[] PROGMEM = {238, 225, 212, 200, 189, 178, 168, 159, 150, 141, 133, 126};
@@ -85,7 +82,6 @@ void playNote (int8_t noteNumber) { //Thanks, Technoblogy!! //0 is C2, 12 is C3,
   OCR1C = pgm_read_byte_near(scale + (noteNumber % 12)); //set OCR to correct divisor from progmem list
   TCCR1 = (1 << CTC1) | (1 << COM1A0) | prescaler; //enable timer in CTC mode and OC1A pwm output, set prescaler
 }
-//OPTIMAL
 
 // ----------     ATTINY METHODS     ---------- //
 
@@ -97,7 +93,6 @@ uint8_t randomLite(uint8_t lo, uint8_t hi) { //Returns a random int in [lo,hi). 
 
   return r % (hi - lo) + lo;
 }
-//OPTIMAL
 
 // ----------     GAME METHODS     ---------- //
 
@@ -169,7 +164,6 @@ void simon(uint8_t difficulty) { //0,1,2 = normal, hard, impossible
   delay(100);
   return; //success, score is too high
 }
-//PROBABLY NOT OPTIMAL
 
 void freq() { //crappy audio frequency generator. For tuning? Requires OSCCAL for anything close to true frequencies
 
@@ -202,4 +196,3 @@ void freq() { //crappy audio frequency generator. For tuning? Requires OSCCAL fo
     if (!(noteNumber & 0b10000000)) ledOutput(command); //should only light up if the input changed something
   }
 }
-//NOT OPTIMAL
