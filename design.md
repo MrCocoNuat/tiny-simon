@@ -9,9 +9,10 @@ of registers to the configurations we need; this would be the setup() method:
   frequency generator more accurate. If you do not care about 440Hz actually 
   being 440Hz this can be left out; Microchip guarantees that the clock is no
   more than 10% inaccurate anyway.
-  - DDRB, the Data Direction register, controls whether the output driver is 
+  - DDRB, the port B Data Direction register, controls whether the output driver is 
   turned on or off for each pin. Here, only pin1 should be an output, so we set
-  the first bit from the right, starting from zero.
+  the first bit from the right, starting from zero. Note that the accessible
+  pins on the ATTINY*5 series are all on port B.
   - ADMUX, the ADC multiplex register, controls what the reference volltage and
   inputs to the ADC should be. Here, we want the ADC to be able to measure 
   voltages all the way up to Vcc, so set the reference voltage to that by setting
@@ -69,9 +70,8 @@ Otherwise, a game of Simon should start. Let's look at simon().
   - Next, the notes that play when each button is pressed are decided. In easy mode, they 
   make up a major triad, and in hard mode, a minor triad created by subtracting 1 from the 
   second note. In impossible mode, the notes are pretty much random.
-  - To finish up the intro, the intro fanfare is played, clueing in the player to which note
-  goes with which light.
-  
+  - To finish up the intro, the intro fanfare is played, telling the player which note goes
+  with which light.
   - An initial value is placed into simonSequence[], and the score was set to 1; the score 
   indicates where in the simonSequence the next light should go. For example, if the score 
   is 25, then the first 25 elements are already set, and the next one should go into \[25\].
@@ -82,14 +82,15 @@ Otherwise, a game of Simon should start. Let's look at simon().
   skipping call-response and moving on to setting the next light, this is possible.
   - Next, mutation is performed. In impossible mode the sequence can change! A random light 
   somewhere in the middle of the sequence is picked. Sometimes, it is changed to a different 
-  light, messing with the player's memory.
+  light, messing with the player's memory. This mode is called "impossible" for a reason!
   - Next, the call is performed. In sequence, the lights are lit and the notes sound, with each
-  round going faster than the last. Then the function waits for no button to be pressed
+  round going faster than the last. Then the function waits for no button to be pressed.
   - The response begins; the player must push the correct buttons in sequence. If the button 
   pushed is correct the corresponding light is lit and the buzzer sounds for a while. If at any
-  time the input is incorrect, then the game ends with a fail sound. 
+  time the input is incorrect, then the game ends with a fail buzzer sounding. 
   - If the response was passed successfully, the score increases and the next round is started.
-  This loops until score = 0, or an overflow.
+  This loops until score = 0 after an overflow. The score value is 8 bits, so an astounding score
+  of 256 would be required to set this off. Forget about it.
  
 - Now, freq().
   
@@ -108,7 +109,8 @@ Otherwise, a game of Simon should start. Let's look at simon().
 - Some other support functions give output. ledOutput() simply makes the necessary changes to
 DDRB and PORTB to set each pin high or low or high impedance to make the correct LED light. 
 - playNote() relies on timer1. Timer1 on the ATTINYX5 is superbly suited to playing a wide range
-of notes because of its prescaler that supports divisors of 2 all the way to 16384.
+of notes because of its prescaler that supports divisors of 2 all the way to 16384. Since an
+octave is just a multiplication of 2 in frequency, this is great!
   
   - A prescaler divides the CPU clock frequency into the timer1 frequency, for example if 
   the CPU clock is 8MHz and the prescaler is 1024, then the timer will tick at 8kHz.
@@ -164,7 +166,8 @@ of notes because of its prescaler that supports divisors of 2 all the way to 163
 
 - The resistor in series with the piezo buzzer controls its loudness.
 Don't set the resistance too low, or the uC will be damaged. There is
-no amplifier to boost the signal coming from the uC pin.
+no amplifier to boost the signal coming from the uC pin, the ATTINY must
+source it all. 20mA is the maximum.
 
 - The buzzing is created by a Timer1 compare match output, so the buzzer 
 output pin must either be pin 1 or 4. Alternatively, generating it with 
@@ -221,4 +224,5 @@ to connect it. Mind the polarity! JST PH connectors don't have standardized
 polarity!
 
 - The switch is included because otherwise the microcontroller by itself 
-will draw about 5mA. This could be reduced by forcing it into sleep modes.
+will draw about 5mA. This could be reduced by forcing it into sleep mode
+and waking it up with pin change interrupts (by pressing buttons).
